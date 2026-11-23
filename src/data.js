@@ -13,9 +13,9 @@ const ls = (k, v) => {
 }
 
 // Dia d'avui dins del calendari: la porta N s'obre el N de desembre a partir de l'hora definida a config.js.
-// ?dia=15 a l'URL per provar.
+// ?dia=15 a l'URL per provar, només en local (a la web publicada s'ignora).
 export function avui(ara = new Date()) {
-  const q = +new URLSearchParams(location.search).get('dia')
+  const q = import.meta.env.DEV ? +new URLSearchParams(location.search).get('dia') : 0
   if (q) return q
   if (ara.getMonth() === 0) return 24 // gener: tot obert
   if (ara.getMonth() < 11) return 0 // abans de desembre: tot tancat

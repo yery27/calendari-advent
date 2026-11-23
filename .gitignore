@@ -3,3 +3,4 @@ dist
 .env
 contingut.json
 .claude
+.env.local
