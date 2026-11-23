@@ -52,3 +52,32 @@ export function Llums() {
     </svg>
   )
 }
+
+// Llaç del regal (el color ve de la cinta de cada caixa)
+export const Llaç = () => (
+  <svg viewBox="0 0 60 40" aria-hidden className="llac" fill="currentColor">
+    <path d="M30 26C20 6 2 6 4 20c2 12 20 10 26 6Zm0 0c10-20 28-20 26-6-2 12-20 10-26 6Z" />
+    <circle cx="30" cy="25" r="6.5" />
+  </svg>
+)
+
+// Peces d'una porta o d'un regal (les fan servir la graella i l'escena d'obertura)
+export function Peca({ n, regal }) {
+  return (
+    <>
+      {regal ? (
+        <>
+          <i className="g-glow" />
+          <i className="g-cos" />
+          <i className="g-tapa"><Llaç /></i>
+        </>
+      ) : (
+        <>
+          <i className="dins" />
+          <i className="fulla-d" data-n={n}><i className="pom" /></i>
+        </>
+      )}
+      <b className="num">{n}</b>
+    </>
+  )
+}

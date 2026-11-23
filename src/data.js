@@ -13,6 +13,11 @@ const ls = (k, v) => {
   } catch { return null }
 }
 
+// En local, ?reset a l'URL torna a deixar tancades totes les portes i regals (i els cupons canviats de proves).
+if (import.meta.env.DEV && new URLSearchParams(location.search).has('reset')) {
+  try { localStorage.removeItem('obertes'); localStorage.removeItem('cupons') } catch {}
+}
+
 // Dia d'avui dins del calendari: la porta N s'obre el N de desembre a partir de l'hora definida a config.js.
 // En local (npm run dev) tot està obert; amb ?dia=15 simules un dia concret.
 // A la web publicada s'ignora i es fa servir la data real.

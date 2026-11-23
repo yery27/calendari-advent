@@ -91,7 +91,7 @@ function Cupo({ dia, porta, cupo, canvia }) {
     <div className="tiquet">
       <div className="relative mx-6 mt-6 rounded-lg bg-vermell py-2.5 text-center text-[12px] font-extrabold tracking-[.3em] text-crema">✦ CUPÓ REGAL ✦</div>
       <div className="relative px-6 pb-5 pt-4 text-center">
-        <p className="text-[10px] font-extrabold tracking-[.3em] text-[#9a6a1c]">VALE PER</p>
+        {!/^vale\b/i.test(porta.titol.replace(/^Cupó:\s*/i, '')) && <p className="text-[10px] font-extrabold tracking-[.3em] text-[#9a6a1c]">VALE PER</p>}
         <p className="mt-1 font-serif text-[24px] italic leading-tight">{porta.titol.replace(/^Cupó:\s*/i, '')}</p>
         <p className="mt-2 text-[14px] leading-snug text-vi/70">{porta.text}</p>
         <p className="mt-3 text-[9px] font-bold uppercase leading-relaxed tracking-wider text-vi/40">Vàlid per a 1 ús · Sense data de caducitat<br />No acumulable · No bescanviable per diners</p>
@@ -159,8 +159,6 @@ export default function Fitxa({ dia, x, y, nova, porta, cupo, canvia, tanca }) {
   useEffect(() => {
     const k = (e) => e.key === 'Escape' && tanca()
     addEventListener('keydown', k)
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
     // El panell s'expandeix en cercle des de la porta que s'ha tocat
     const r = Math.hypot(innerWidth, innerHeight)
     vel.current.animate(
@@ -170,7 +168,7 @@ export default function Fitxa({ dia, x, y, nova, porta, cupo, canvia, tanca }) {
     let atura
     if (dia === 24) atura = focs()
     else if (nova) festa(x / innerWidth, y / innerHeight)
-    return () => { removeEventListener('keydown', k); document.body.style.overflow = prev; atura?.() }
+    return () => { removeEventListener('keydown', k); atura?.() }
   }, [])
 
   return (

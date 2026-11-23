@@ -146,19 +146,6 @@ export function Descarrega({ src, text, boto }) {
 }
 
 // ---- Cupó canviat: targeta bonica (PNG) que es descarrega al mòbil ----
-const COL = ['#e8453a', '#e9c46a', '#f4ece1', '#e9c46a']
-function garlanda(x, W) {
-  const p = W / 12
-  x.strokeStyle = 'rgba(233,196,106,.55)'; x.lineWidth = 3; x.beginPath(); x.moveTo(0, 20)
-  for (let i = 0; i < 12; i++) x.quadraticCurveTo(i * p + p / 2, 130, (i + 1) * p, 20)
-  x.stroke()
-  for (let i = 0; i < 12; i++) {
-    const bx = i * p + p / 2, g = x.createRadialGradient(bx, 80, 0, bx, 80, 44)
-    g.addColorStop(0, COL[i % 4] + 'aa'); g.addColorStop(1, COL[i % 4] + '00')
-    x.fillStyle = g; x.beginPath(); x.arc(bx, 80, 44, 0, 6.3); x.fill()
-    x.fillStyle = COL[i % 4]; x.beginPath(); x.arc(bx, 76, 13, 0, 6.3); x.fill()
-  }
-}
 function embolica(x, text, max) {
   const l = []; let a = ''
   for (const m of text.split(' ')) { const t = a ? `${a} ${m}` : m; if (x.measureText(t).width > max && a) { l.push(a); a = m } else a = t }
@@ -168,19 +155,6 @@ function embolica(x, text, max) {
 
 export async function desaCupo({ dia, titol, text, data, nota }) {
   await Promise.all(['800 60px "Bricolage Grotesque"', 'italic 400 60px "Fraunces"'].map((f) => document.fonts.load(f).catch(() => {})))
-  const c = document.createElement('canvas'), W = (c.width = 1080), H = (c.height = 1760), x = c.getContext('2d')
-  const r = rng(dia + 3)
-  const g = x.createRadialGradient(W / 2, 0, 0, W / 2, 0, H * 0.9)
-  g.addColorStop(0, '#5a1019'); g.addColorStop(1, '#220609'); x.fillStyle = g; x.fillRect(0, 0, W, H)
-  x.fillStyle = 'rgba(244,236,225,.13)'
-  for (let yy = 20; yy < H; yy += 44) for (let i = 20; i < W; i += 44) { x.beginPath(); x.arc(i, yy, 2.2, 0, 6.3); x.fill() }
-  x.fillStyle = 'rgba(255,255,255,.8)'
-  for (let i = 0; i < 90; i++) { x.beginPath(); x.arc(r() * W, r() * H, 2 + r() * 5, 0, 6.3); x.fill() }
-  garlanda(x, W)
-  x.textAlign = 'center'
-  x.fillStyle = '#e9c46a'; x.font = '800 34px "Bricolage Grotesque", sans-serif'; x.letterSpacing = '16px'; x.fillText('PER A', W / 2 + 8, 215); x.letterSpacing = '0px'
-  x.fillStyle = '#f4ece1'; x.font = '800 130px "Bricolage Grotesque", sans-serif'; x.fillText(per, W / 2, 335)
-
   // El cupó: paper cru, osques laterals, doble filet daurat, banda vermella, tisores, codi de barres i segell al taló
   const tw = 920, th = 1090, cut = 700
   const t = document.createElement('canvas'); t.width = tw; t.height = th
@@ -198,7 +172,7 @@ export async function desaCupo({ dia, titol, text, data, nota }) {
   y.fillStyle = '#f6eee2'; y.font = '800 50px "Bricolage Grotesque", sans-serif'; y.letterSpacing = '12px'; y.fillText('CUPÓ REGAL', tw / 2 + 6, 146); y.letterSpacing = '0px'
   y.font = '34px serif'; y.fillText('✦', 122, 142); y.fillText('✦', tw - 122, 142)
   // oferta
-  y.fillStyle = '#9a6a1c'; y.font = '800 28px "Bricolage Grotesque", sans-serif'; y.letterSpacing = '12px'; y.fillText('VALE PER', tw / 2 + 6, 245); y.letterSpacing = '0px'
+  y.fillStyle = '#9a6a1c'; y.font = '800 28px "Bricolage Grotesque", sans-serif'; y.letterSpacing = '12px'; if (!/^vale\b/i.test(titol.replace(/^Cupó:\s*/i, ''))) y.fillText('VALE PER', tw / 2 + 6, 245); y.letterSpacing = '0px'
   y.fillStyle = '#2b080c'; y.font = 'italic 400 72px "Fraunces", Georgia, serif'
   const tit = embolica(y, titol.replace(/^Cupó:\s*/i, ''), tw - 170).slice(0, 3)
   tit.forEach((l, i) => y.fillText(l, tw / 2, 335 + i * 84))
@@ -227,11 +201,6 @@ export async function desaCupo({ dia, titol, text, data, nota }) {
     y.fillStyle = 'rgba(43,8,12,.7)'; y.font = 'italic 400 32px "Fraunces", Georgia, serif'
     embolica(y, `“${nota}”`, tw - 170).slice(0, 2).forEach((l, i) => y.fillText(l, tw / 2, cut + 290 + i * 42))
   }
-  x.shadowColor = 'rgba(0,0,0,.55)'; x.shadowBlur = 50; x.shadowOffsetY = 20
-  x.drawImage(t, (W - tw) / 2, 410)
-  x.shadowColor = 'transparent'
-
-  x.fillStyle = '#e9c46a'; x.font = 'italic 400 64px "Fraunces", Georgia, serif'; x.fillText(`Amb carinyo, ${de}`, W / 2, 1650)
-  x.font = '56px serif'; x.fillText('✦', W / 2, 1720)
-  return new Promise((ok) => c.toBlob((b) => { guarda(b, `cupo-${dia}.png`); ok() }))
+  // Només el cupó, amb fons transparent
+  return new Promise((ok) => t.toBlob((b) => { guarda(b, `cupo-${dia}.png`); ok() }))
 }
