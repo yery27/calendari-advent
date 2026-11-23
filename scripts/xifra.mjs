@@ -1,0 +1,15 @@
+// Ús: npm run xifra -- 14112024   (la contrasenya = la data, només els números)
+import { webcrypto as c } from 'node:crypto'
+import { readFileSync, writeFileSync } from 'node:fs'
+
+const clau = (process.argv[2] || '').replace(/\D/g, '')
+if (!clau) { console.error('Ús: npm run xifra -- 14112024'); process.exit(1) }
+
+const b64 = (u) => Buffer.from(u).toString('base64')
+const salt = c.getRandomValues(new Uint8Array(16))
+const iv = c.getRandomValues(new Uint8Array(12))
+const km = await c.subtle.importKey('raw', new TextEncoder().encode(clau), 'PBKDF2', false, ['deriveKey'])
+const k = await c.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 200000, hash: 'SHA-256' }, km, { name: 'AES-GCM', length: 256 }, false, ['encrypt'])
+const ct = await c.subtle.encrypt({ name: 'AES-GCM', iv }, k, readFileSync('contingut.json'))
+writeFileSync('src/portes.enc.json', JSON.stringify({ salt: b64(salt), iv: b64(iv), ct: b64(ct) }))
+console.log('Xifrat: src/portes.enc.json')

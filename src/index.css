@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-serif: "Fraunces", Georgia, serif;
+  --color-vi: #2b080c;
+  --color-granat: #4a0f16;
+  --color-vermell: #e8453a;
+  --color-crema: #f4ece1;
+  --color-or: #e9c46a;
+}
+
+html { background: var(--color-vi); }
+body {
+  margin: 0;
+  min-height: 100dvh;
+  color: var(--color-crema);
+  font-family: var(--font-display);
+  background:
+    radial-gradient(circle at 50% -10%, #5a1019 0%, transparent 55%),
+    radial-gradient(rgba(244, 236, 225, .13) 1px, transparent 1.2px) 0 0 / 22px 22px,
+    var(--color-vi);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Graella: cel·la quadrada, 4 columnes */
+.graella {
+  --gap: 10px;
+  --cell: calc((min(100vw, 560px) - 32px - 3 * var(--gap)) / 4);
+  display: grid;
+  grid-template-columns: repeat(4, var(--cell));
+  grid-auto-rows: var(--cell);
+  gap: var(--gap);
+  justify-content: center;
+}
+
+.porta {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  font-weight: 800;
+  font-size: clamp(1.5rem, 8vw, 2.6rem);
+  line-height: 1;
+  letter-spacing: -.04em;
+  text-align: left;
+  padding: 10px 12px;
+  display: flex;
+  align-items: flex-start;
+  border: 0;
+  cursor: pointer;
+  transition: transform .25s cubic-bezier(.2, .8, .2, 1), filter .25s;
+  animation: entra .6s cubic-bezier(.2, .8, .2, 1) backwards;
+}
+.porta:active { transform: scale(.95); }
+.porta[data-estat="tancada"] { cursor: default; filter: saturate(.55) brightness(.62); }
+.porta[data-estat="tancada"]:active { transform: none; }
+.porta[data-estat="avui"] { animation: entra .6s backwards, llum 2.4s ease-in-out infinite .6s; }
+
+.c-r { background: var(--color-vermell); color: var(--color-crema); }
+.c-c { background: var(--color-crema); color: #b42f27; }
+.c-d { background: var(--color-granat); color: var(--color-vermell); box-shadow: inset 0 0 0 1px rgba(232, 69, 58, .25); }
+.c-g {
+  background:
+    linear-gradient(90deg, transparent 42%, rgba(255, 250, 235, .85) 42% 58%, transparent 58%),
+    linear-gradient(0deg, transparent 42%, rgba(255, 250, 235, .85) 42% 58%, transparent 58%),
+    linear-gradient(135deg, #f3d98a, #c99a3a 55%, #efd27c);
+  color: #5a1a10;
+}
+
+.porta .marca { position: absolute; right: 10px; bottom: 8px; font-size: .9rem; opacity: .75; letter-spacing: 0; }
+
+@keyframes entra { from { opacity: 0; transform: translateY(14px) scale(.96); } }
+@keyframes llum {
+  50% { box-shadow: 0 0 0 3px rgba(233, 196, 106, .9), 0 0 26px rgba(233, 196, 106, .55); }
+}
+@keyframes puja { from { transform: translateY(100%); } }
+@keyframes apareix { from { opacity: 0; } }
+
+.fitxa { animation: puja .38s cubic-bezier(.2, .8, .2, 1); }
+.vel { animation: apareix .3s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* ---------- Decoració ---------- */
+.brill-or {
+  background: linear-gradient(100deg, var(--base, var(--color-crema)) 35%, #fff3c4 45%, var(--color-or) 50%, #fff3c4 55%, var(--base, var(--color-crema)) 65%) 0 0 / 250% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: brill 6s ease-in-out infinite;
+}
+@keyframes brill { from { background-position: 100% 0; } 60%, to { background-position: -50% 0; } }
+
+.llum-glow { animation: parpelleja 2.1s ease-in-out infinite; animation-delay: var(--d); }
+@keyframes parpelleja { 0%, 100% { opacity: .15; } 50% { opacity: 1; } }
+
+/* Raig de llum que creua la porta d'avui */
+.porta[data-estat="avui"]::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(110deg, transparent 40%, rgba(255, 255, 255, .45) 50%, transparent 60%);
+  transform: translateX(-120%); animation: passa 3.2s ease-in-out infinite 1s;
+}
+@keyframes passa { 60%, 100% { transform: translateX(120%); } }
+
+.avis {
+  position: fixed; left: 50%; bottom: max(1.5rem, env(safe-area-inset-bottom)); z-index: 20;
+  translate: -50% 0; max-width: calc(100vw - 32px); padding: 12px 20px; border-radius: 999px;
+  background: var(--color-crema); color: var(--color-vi); font-weight: 700; font-size: 14px; text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .4); animation: avis .35s cubic-bezier(.2, .8, .2, 1);
+}
+@keyframes avis { from { opacity: 0; translate: -50% 20px; } }
+
+/* ---------- Text: paraules ---------- */
+.pal { display: inline-block; opacity: 0; transform: translateY(8px); animation: pal .6s forwards; animation-delay: calc(.55s + var(--i) * 40ms); }
+@keyframes pal { to { opacity: 1; transform: none; } }
+
+/* ---------- Foto: polaroid ---------- */
+.polaroid { position: relative; margin: 8px auto; max-width: 340px; background: #fffaf0; padding: 12px 12px 14px; border-radius: 4px; transform: rotate(-2deg); box-shadow: 0 14px 30px rgba(0, 0, 0, .45); animation: cau .8s cubic-bezier(.2, 1.2, .3, 1) both .3s; }
+.polaroid .cinta { position: absolute; top: -12px; left: 50%; width: 90px; height: 24px; translate: -50% 0; rotate: 3deg; background: rgba(233, 196, 106, .75); }
+.revela { animation: revela 3s ease-out both .6s; }
+@keyframes cau { from { opacity: 0; transform: translateY(-40px) rotate(8deg) scale(.9); } }
+@keyframes revela { from { filter: brightness(2.2) contrast(.5) sepia(1) blur(10px); } }
+
+/* ---------- Àudio: equalitzador ---------- */
+.eq { display: flex; align-items: flex-end; gap: 3px; height: 56px; }
+.eq i { flex: 1; height: 100%; border-radius: 3px; background: linear-gradient(var(--color-or), var(--color-vermell)); transform: scaleY(.1); transform-origin: bottom; transition: transform .4s; }
+.eq.on i { animation: barra .9s ease-in-out infinite alternate; animation-delay: var(--d); }
+@keyframes barra { from { transform: scaleY(.12); } to { transform: scaleY(var(--s)); } }
+
+/* ---------- Cançó: vinil ---------- */
+.disc { position: relative; width: 150px; aspect-ratio: 1; border-radius: 50%; animation: gira 4.5s linear infinite;
+  background: conic-gradient(from 20deg, rgba(255,255,255,.14), transparent 20%, transparent 50%, rgba(255,255,255,.14) 70%, transparent 90%), repeating-radial-gradient(circle, #101010 0 2px, #1c1c1c 2px 4px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .5); }
+.disc .etiqueta { position: absolute; inset: 34%; border-radius: 50%; background: radial-gradient(circle, var(--color-crema) 0 9%, var(--color-vermell) 10%); }
+@keyframes gira { to { transform: rotate(1turn); } }
+
+/* ---------- Cupó: tiquet i segell ---------- */
+.tiquet { background: var(--color-crema); color: var(--color-vi); border-radius: 16px; animation: cau .7s cubic-bezier(.2, 1.2, .3, 1) both .25s; }
+.tiquet .tall { border-top: 2px dashed rgba(43, 8, 12, .3); }
+.tiquet .tall::before, .tiquet .tall::after { content: ""; position: absolute; top: -11px; width: 20px; height: 20px; border-radius: 50%; background: var(--color-vi); }
+.tiquet .tall::before { left: -10px; } .tiquet .tall::after { right: -10px; }
+.segell { display: grid; justify-items: center; padding: 8px 18px; border: 3px solid var(--color-vermell); border-radius: 10px; color: var(--color-vermell); font-weight: 800; font-size: 28px; letter-spacing: .08em; rotate: -10deg; animation: segell .55s cubic-bezier(.3, 1.4, .5, 1) both .2s; }
+.segell small { font-size: 11px; letter-spacing: .2em; }
+@keyframes segell { from { opacity: 0; scale: 3; } 60% { opacity: 1; } }
+
+/* ---------- El 24: caixa de regal ---------- */
+.regal { position: relative; height: 220px; display: grid; place-items: center; }
+.raigs { position: absolute; width: 300px; aspect-ratio: 1; opacity: 0; animation: gira 16s linear infinite, raig-in 1s 1s forwards;
+  background: repeating-conic-gradient(rgba(233, 196, 106, .4) 0 9deg, transparent 9deg 18deg);
+  -webkit-mask: radial-gradient(circle, #000 15%, transparent 68%); mask: radial-gradient(circle, #000 15%, transparent 68%); }
+.caixa { position: relative; width: 96px; height: 70px; margin-top: 30px; animation: botiga 1.8s ease-in-out infinite 2s; }
+.cos, .tapa { background: linear-gradient(90deg, transparent 43%, #fff6d8 43% 57%, transparent 57%), linear-gradient(135deg, #f3d98a, #c99a3a); border-radius: 6px; }
+.cos { position: absolute; inset: 14px 0 0; }
+.tapa { position: absolute; left: -6px; right: -6px; top: -4px; height: 26px; animation: tapa 1.3s .7s cubic-bezier(.3, 1.5, .5, 1) forwards; transform-origin: left bottom; }
+.estrella { position: absolute; left: 50%; top: 10px; color: #fff3c4; font-style: normal; font-size: 28px; opacity: 0; animation: puja-estrella 1.6s ease-out infinite 1.3s; }
+.estrella.e2 { font-size: 16px; left: 30%; animation-delay: 1.9s; }
+@keyframes tapa { to { transform: translate(14px, -62px) rotate(-22deg); } }
+@keyframes puja-estrella { from { opacity: 1; transform: translateY(0) scale(.5); } to { opacity: 0; transform: translateY(-110px) scale(1.2) rotate(40deg); } }
+@keyframes botiga { 50% { transform: translateY(-4px); } }
+
+.marc { box-shadow: 0 0 0 3px var(--color-or), 0 10px 30px rgba(0, 0, 0, .5); }
+@keyframes raig-in { to { opacity: 1; } }
+
+/* ---------- Figura 3D ---------- */
+.figura { height: 440px; border-radius: 16px; cursor: grab; background: radial-gradient(circle at 50% 45%, rgba(233,196,106,.28), transparent 62%); }
+.figura:active { cursor: grabbing; }
+.figura canvas { display: block; width: 100%; height: 100%; }
