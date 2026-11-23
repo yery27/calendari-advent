@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { per, de, intro, hora } from './config'
 import { graella } from './portes'
-import { desxifra } from './cripto'
+import { desxifra, media } from './cripto'
 import { avui, obertes, marcaOberta, carregaCupons, canviaCupo } from './data'
 import Entrada from './Entrada'
 import Fitxa from './Fitxa'
@@ -16,6 +16,15 @@ function Llaç() {
   )
 }
 
+function Obrint({ n, col, r }) {
+  return (
+    <div className="obrint" style={{ left: r.left, top: r.top, width: r.width, height: r.height }} aria-hidden>
+      <div className="llum" />
+      {n === 24 ? <><div className="cos-r c-g" /><div className="tapa-r c-g" /></> : <div className={`fulla c-${col}`}>{n}</div>}
+    </div>
+  )
+}
+
 const sacseja = (el) => el.animate(
   [0, -7, 7, -5, 5, 0].map((x) => ({ transform: `translateX(${x}px)` })),
   { duration: 380 },
@@ -25,6 +34,7 @@ export default function App() {
   const [portes, setPortes] = useState(null)
   const [dia, setDia] = useState(avui)
   const [oberta, setOberta] = useState(null)
+  const [obrint, setObrint] = useState(null) // porta que s'està obrint (animació)
   const [vistes, setVistes] = useState(obertes)
   const [cupons, setCupons] = useState({})
   const [avis, setAvis] = useState('')
@@ -50,9 +60,28 @@ export default function App() {
   }, [])
   useEffect(() => { if (avis) { const id = setTimeout(() => setAvis(''), 2600); return () => clearTimeout(id) } }, [avis])
 
+  // Mentre ella mira el calendari, es descifren i decodifiquen en segon pla les fotos de les portes ja obertes
+  // (i el visor 3D si és el 24), perquè en tocar la porta surtin a l'instant.
+  useEffect(() => {
+    if (!portes) return
+    let viu = true
+    const idle = window.requestIdleCallback || ((f) => setTimeout(f, 300))
+    const fotos = Object.entries(portes).filter(([n, p]) => +n <= dia && /\.(jpe?g|png|webp)$/i.test(p.src || '')).map(([, p]) => p.src)
+    ;(async () => {
+      for (const s of fotos) {
+        await new Promise((r) => idle(r))
+        if (!viu) return
+        try { const i = new Image(); i.src = await media(s); await i.decode() } catch {}
+      }
+    })()
+    if (dia >= 24 && portes[24]?.tipus === 'figura') idle(() => import('./Figura'))
+    return () => { viu = false }
+  }, [portes, dia])
+
   if (!portes) return <><Neu /><Entrada prova={prova} /></>
 
   const obre = (n, e) => {
+    if (obrint) return
     if (n > dia) {
       sacseja(e.currentTarget)
       return setAvis(`Aquesta porta s’obre el ${n} de desembre a les ${hora}:00`)
@@ -61,7 +90,12 @@ export default function App() {
     const nova = !obertes().includes(n)
     marcaOberta(n)
     setVistes(obertes())
-    setOberta({ n, nova, x: r.left + r.width / 2, y: r.top + r.height / 2 })
+    const dades = { n, nova, x: r.left + r.width / 2, y: r.top + r.height / 2 }
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return setOberta(dades)
+    // La porta gira sobre la frontissa i deixa sortir una llum (el 24: el regal aixeca la tapa); la fitxa surt d'aquí
+    setObrint({ n, col: graella[n][4], r: { left: r.left, top: r.top, width: r.width, height: r.height } })
+    setTimeout(() => setOberta(dades), 360)
+    setTimeout(() => setObrint(null), 900)
   }
 
   const canvia = async (n, nota) => {
@@ -94,11 +128,11 @@ export default function App() {
             return (
               <button
                 key={n}
-                className={`porta c-${col}`}
+                className={`porta c-${col} ${obrint?.n === n ? 'invisible' : ''}`}
                 data-estat={estat}
                 aria-label={n > dia ? `Porta ${n}, encara tancada` : `Obre la porta ${n}`}
                 onClick={(e) => obre(n, e)}
-                style={{ gridColumn: `${c} / span ${w}`, gridRow: `${f} / span ${h}`, animationDelay: `${n * 35}ms` }}
+                style={{ gridColumn: `${c} / span ${w}`, gridRow: `${f} / span ${h}`, animationDelay: `${Math.min(n * 10, 220)}ms` }}
               >
                 {n === 24 && <Llaç />}
                 {n}
@@ -111,6 +145,7 @@ export default function App() {
         </div>
       </main>
 
+      {obrint && <Obrint {...obrint} />}
       {avis && <div role="status" className="avis">{avis}</div>}
 
       {oberta && <Fitxa key={oberta.n} {...oberta} dia={oberta.n} porta={portes[oberta.n]} cupo={cupons[oberta.n]} canvia={canvia} tanca={() => setOberta(null)} />}

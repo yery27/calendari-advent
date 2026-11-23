@@ -1,9 +1,10 @@
-import { createClient } from '@supabase/supabase-js'
 import { hora } from './config'
 
 const url = import.meta.env.VITE_SUPABASE_URL
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY
-const sb = url && key ? createClient(url, key) : null
+// supabase-js es baixa a part i només si hi ha claus (no endarrereix la primera pantalla)
+let sbP
+const sb = () => url && key ? (sbP ||= import('@supabase/supabase-js').then((m) => m.createClient(url, key))) : null
 
 const ls = (k, v) => {
   try {
@@ -27,14 +28,16 @@ export const marcaOberta = (n) => ls('obertes', [...new Set([...obertes(), n])])
 
 // Cupons canviats: { [dia]: { nota, canviat_at } }
 export async function carregaCupons() {
-  if (!sb) return ls('cupons') || {}
-  const { data } = await sb.from('cupons').select('*')
+  const c = sb()
+  if (!c) return ls('cupons') || {}
+  const { data } = await (await c).from('cupons').select('*')
   return Object.fromEntries((data || []).map((r) => [r.dia, r]))
 }
 
 export async function canviaCupo(dia, nota) {
   const fila = { dia, nota: nota || null, canviat_at: new Date().toISOString() }
-  if (!sb) return ls('cupons', { ...(ls('cupons') || {}), [dia]: fila })
-  const { error } = await sb.from('cupons').insert(fila)
+  const c = sb()
+  if (!c) return ls('cupons', { ...(ls('cupons') || {}), [dia]: fila })
+  const { error } = await (await c).from('cupons').insert(fila)
   if (error) throw error
 }
