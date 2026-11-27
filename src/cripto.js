@@ -18,7 +18,8 @@ export async function desxifra(pwd) {
 const cau = new Map()
 export function media(nom) {
   if (!cau.has(nom)) {
-    cau.set(nom, fetch(`${import.meta.env.BASE_URL}media/${nom}.enc`).then(async (r) => {
+    // ?v= canvia cada cop que es xifra de nou, així el navegador mai barreja arxius vells (en caché) amb el codi nou
+    cau.set(nom, fetch(`${import.meta.env.BASE_URL}media/${nom}.enc?v=${enc.salt.replace(/\W/g, '').slice(0, 12)}`).then(async (r) => {
       if (!r.ok) throw new Error(nom)
       const b = new Uint8Array(await r.arrayBuffer())
       const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b.slice(0, 12) }, clau, b.slice(12))

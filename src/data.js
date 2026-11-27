@@ -1,4 +1,4 @@
-import { hora } from './config'
+import { hora, obreTot } from './config'
 
 const url = import.meta.env.VITE_SUPABASE_URL
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -13,8 +13,8 @@ const ls = (k, v) => {
   } catch { return null }
 }
 
-// En local, ?reset a l'URL torna a deixar tancades totes les portes i regals (i els cupons canviats de proves).
-if (import.meta.env.DEV && new URLSearchParams(location.search).has('reset')) {
+// ?reset a l'URL torna a deixar tancades totes les portes i regals d'AQUEST dispositiu (i els cupons de proves guardats aquí).
+if (new URLSearchParams(location.search).has('reset')) {
   try { localStorage.removeItem('obertes'); localStorage.removeItem('cupons') } catch {}
 }
 
@@ -23,7 +23,7 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('reset')) {
 // A la web publicada s'ignora i es fa servir la data real.
 export function avui(ara = new Date()) {
   if (import.meta.env.DEV) return +new URLSearchParams(location.search).get('dia') || 24
-  if (ara.getMonth() === 0) return 24 // gener: tot obert
+  if (obreTot || ara.getMonth() === 0) return 24 // mode prova (config.js) o gener: tot obert
   if (ara.getMonth() < 11) return 0 // abans de desembre: tot tancat
   return Math.min(Math.max(ara.getDate() - (ara.getHours() < hora ? 1 : 0), 0), 24)
 }
