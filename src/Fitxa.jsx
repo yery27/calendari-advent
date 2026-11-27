@@ -40,8 +40,8 @@ function Foto({ src, text }) {
   return (
     <figure className="polaroid">
       <span className="cinta" />
-      {err ? <div className="grid aspect-[4/5] place-items-center bg-vi/10 p-4 text-center text-sm text-vi/60">Aquí anirà la foto (media-privat/{src})</div>
-        : url ? <img src={url} alt="" className="revela aspect-[4/5] w-full object-cover" /> : <div className="aspect-[4/5] bg-vi/10" />}
+      {err ? <div className="grid h-56 w-56 place-items-center bg-vi/10 p-4 text-center text-sm text-vi/60">Aquí anirà la foto (media-privat/{src})</div>
+        : url ? <img src={url} alt="" className="revela block h-auto max-h-[58dvh] w-auto max-w-full object-contain" /> : <div className="h-56 w-56 bg-vi/10" />}
       {text && <figcaption className="px-1 pb-1 pt-3 font-serif text-[15px] italic text-vi">{text}</figcaption>}
     </figure>
   )
